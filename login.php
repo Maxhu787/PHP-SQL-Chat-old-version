@@ -3,6 +3,8 @@ require_once "pdo.php";
 require_once "head.php";
 session_start();
 
+date_default_timezone_set('Asia/Taipei');
+
 $host = $_SERVER['HTTP_HOST'];
 $ruta = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
 $url = "http://$host$ruta";
@@ -30,7 +32,7 @@ if (isset($_POST["email"]) && isset($_POST["pass"])) {
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($row !== false) {
-        error_log("Login success " . $_POST['email'] . "\n", 3, "logs.log");
+        error_log("Login success " . $_POST['email'] . " (" . date(DATE_RFC2822) . ")\n", 3, "logs.log");
         $_SESSION["user_id"] = $row["user_id"];
         $_SESSION["name"] = $row["name"];
         $_SESSION['email'] = $row['email'];
@@ -39,7 +41,7 @@ if (isset($_POST["email"]) && isset($_POST["pass"])) {
         die();
     } else {
         $_SESSION["error"] = "Incorrect email or password";
-        error_log("Login fail " . $_POST['email'] . " $check" . "\n", 3, "logs.log");
+        error_log("Login fail " . $_POST['email'] . $check . " (" . date(DATE_RFC2822) . ")\n", 3, "logs.log");
         header("Location: $url/login.php");
         die();
     }
@@ -52,7 +54,7 @@ if (isset($_POST["email"]) && isset($_POST["pass"])) {
     <title>7e5c43ae</title>
 </head>
 
-<body style="margin-left: 40px;" >
+<body style="margin-left: 40px;">
     <h1>
         Please Log In
     </h1>
@@ -98,4 +100,4 @@ if (isset($_POST["email"]) && isset($_POST["pass"])) {
     </script>
 </body>
 
-</html>	
+</html>

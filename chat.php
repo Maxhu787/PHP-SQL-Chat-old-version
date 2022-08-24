@@ -4,7 +4,11 @@ require_once "pdo.php";
 date_default_timezone_set('UTC');
 
 if (!isset($_SESSION["email"])) {
-  die("ACCESS DENIED");
+  echo "PLEASE LOGIN";
+  echo "<br />";
+  echo "Redirecting in 3 seconds";
+  header("refresh:3;url=index.php");
+  die();
 }
 
 $stmt = $pdo->query(
@@ -49,6 +53,7 @@ if (isset($_POST['message'])) {
     background-color: #121212;
     color: #ffffff;
     opacity: 87%;
+    overflow-x: hidden;
   }
 
   #chatcontent {
@@ -226,21 +231,23 @@ if (isset($_POST['message'])) {
 
       <p class="msg"></p>
       <?php
-      $timezone_offset_minutes = $_COOKIE['timezone'];
-      echo $timezone_offset_minutes;
-
       if (count($rows) > 0) {
         foreach ($rows as $row) {
-          $time = new DateTime($row["message_date"]);
-          $minutes_to_add = $timezone_offset_minutes;
-          $time->add(new DateInterval('PT' . $minutes_to_add . 'M'));
-          $stamp = $time->format('D, d M Y H:i:s O');
-
           echo ("<p class='stats'>");
           $user = "<a class='account rainbow_text_animated'>" . ucfirst(explode("@", $row['account'])[0]) . "</a>";
+
+          if (isset($_COOKIE['timezone'])) {
+            $timezone_offset_minutes = $_COOKIE['timezone'];
+            $time = new DateTime($row["message_date"]);
+            $minutes_to_add = ($timezone_offset_minutes);
+            $time->add(new DateInterval('PT' . $minutes_to_add . 'M'));
+            $stamp = $time->format('D, d M Y H:i:s');
+          } else {
+            $stamp = $row["message_date"];
+          }
           echo ($user . " (" . $stamp . ")");
           echo ("</p>");
-
+          
           echo ("<p class='msg'>");
           echo htmlentities($row['message']);
           echo ("</p>");
@@ -292,8 +299,7 @@ if (isset($_POST['message'])) {
     if (window.history.replaceState) {
       window.history.replaceState(null, null, window.location.href);
     }
-  </script>
-  <script>
+
     var timezone_offset_minutes = new Date().getTimezoneOffset();
     timezone_offset_minutes = timezone_offset_minutes == 0 ? 0 : -timezone_offset_minutes;
 

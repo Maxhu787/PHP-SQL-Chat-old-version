@@ -1,8 +1,12 @@
 <?php
 require_once "pdo.php";
 session_start();
-if (!isset($_SESSION['email'])) {
-    die('Not logged in');
+if (!isset($_SESSION["email"])) {
+    echo "PLEASE LOGIN";
+    echo "<br />";
+    echo "Redirecting in 3 seconds";
+    header("refresh:3;url=index.php");
+    die();
 }
 
 if (

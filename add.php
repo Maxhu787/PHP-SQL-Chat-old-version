@@ -3,8 +3,12 @@ require_once "pdo.php";
 session_start();
 
 // Check if we are logged in!
-if (!isset($_SESSION['email'])) {
-	die('ACCESS DENIED');
+if (!isset($_SESSION["email"])) {
+	echo "PLEASE LOGIN";
+	echo "<br />";
+	echo "Redirecting in 3 seconds";
+	header("refresh:3;url=index.php");
+	die();
 }
 
 // If the user requested logout go back to index.php
