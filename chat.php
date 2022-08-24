@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once "pdo.php";
+date_default_timezone_set('UTC');
 
 if (!isset($_SESSION["email"])) {
   die("ACCESS DENIED");
@@ -225,15 +226,23 @@ if (isset($_POST['message'])) {
 
       <p class="msg"></p>
       <?php
+      $timezone_offset_minutes = $_COOKIE['timezone'];
+      echo $timezone_offset_minutes;
+
       if (count($rows) > 0) {
         foreach ($rows as $row) {
+          $time = new DateTime($row["message_date"]);
+          $minutes_to_add = $timezone_offset_minutes;
+          $time->add(new DateInterval('PT' . $minutes_to_add . 'M'));
+          $stamp = $time->format('D, d M Y H:i:s O');
+
           echo ("<p class='stats'>");
           $user = "<a class='account rainbow_text_animated'>" . ucfirst(explode("@", $row['account'])[0]) . "</a>";
-          echo ($user . " (" . $row["message_date"]) . ")";
+          echo ($user . " (" . $stamp . ")");
           echo ("</p>");
 
           echo ("<p class='msg'>");
-          echo ($row['message']);
+          echo htmlentities($row['message']);
           echo ("</p>");
         }
       }
@@ -241,13 +250,13 @@ if (isset($_POST['message'])) {
     </div>
     <form id='form' autocomplete="off" method="post" action="chat.php">
       <div>
-        <input id='message-input' type="text" name="message" size="60" placeholder="Enter message and submit" />
+        <input pattern=".{1,}" required title="3 characters minimum" id='message-input' type="text" name="message" size="60" placeholder="Enter message and submit" />
         <input class='button' id="submit" type="submit" value="Chat" />
         <input class='button' id='reset' type="submit" name="reset" value="Reset" />
       </div>
     </form>
   </section>
-  <script type="text/javascript" src="jquery.min.js">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.js">
   </script>
   <script type="text/javascript">
     let input = document.getElementById('message-input');
@@ -284,5 +293,10 @@ if (isset($_POST['message'])) {
       window.history.replaceState(null, null, window.location.href);
     }
   </script>
+  <script>
+    var timezone_offset_minutes = new Date().getTimezoneOffset();
+    timezone_offset_minutes = timezone_offset_minutes == 0 ? 0 : -timezone_offset_minutes;
 
+    document.cookie = "timezone=" + timezone_offset_minutes;
+  </script>
 </body>
